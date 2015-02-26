@@ -189,7 +189,7 @@
 		},
 		{
 			"ImportPath": "github.com/fsouza/go-dockerclient",
-			"Rev": "5da2a37ecfb5bcb921a36dbc18e912c3235f139a"
+			"Rev": "59b423db81e5894ca7460652f1b206fc72d85750"
 		},
 		{
 			"ImportPath": "github.com/go-sql-driver/mysql",
