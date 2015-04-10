@@ -22,6 +22,7 @@ func New(e *empire.Empire, auth authorization.Authorizer) httpx.Handler {
 	r.Handle("GET", "/apps", Authenticate(e, &GetApps{e}))                 // hk apps
 	r.Handle("DELETE", "/apps/{app}", Authenticate(e, &DeleteApp{e}))      // hk destroy
 	r.Handle("POST", "/apps", Authenticate(e, &PostApps{e}))               // hk create
+	r.Handle("PATCH", "/apps", Authenticate(e, &PatchApps{e}))             // hk rename
 	r.Handle("POST", "/organizations/apps", Authenticate(e, &PostApps{e})) // hk create
 
 	// Domains

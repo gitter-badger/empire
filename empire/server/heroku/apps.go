@@ -95,6 +95,37 @@ func (h *PostApps) ServeHTTPContext(ctx context.Context, w http.ResponseWriter, 
 	return Encode(w, newApp(a))
 }
 
+type PatchAppsForm struct {
+	Name string `json:"name"`
+}
+
+type PatchApps struct {
+	*empire.Empire
+}
+
+func (h *PatchApps) ServeHTTPContext(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
+	var form PatchAppsForm
+
+	// if err := Decode(r, &form); err != nil {
+	// 	return err
+	// }
+
+	// app := &empire.App{
+	// 	Name: form.Name,
+	// 	Repos: empire.Repos{
+	// 		Docker: form.Repos.Docker,
+	// 		GitHub: form.Repos.GitHub,
+	// 	},
+	// }
+	// a, err := h.AppsCreate(app)
+	// if err != nil {
+	// 	return err
+	// }
+
+	// w.WriteHeader(201)
+	// return Encode(w, newApp(a))
+}
+
 func findApp(ctx context.Context, e interface {
 	AppsFind(name string) (*empire.App, error)
 }) (*empire.App, error) {

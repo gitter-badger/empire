@@ -303,6 +303,19 @@ v3    Dec 31 17:01  Rollback to v1`,
 	})
 }
 
+func TestRename(t *testing.T) {
+	run(t, []Command{
+		{
+			"create acme-inc",
+			"Created acme-inc.",
+		},
+		{
+			"rename acme-inc acme-inc-renamed",
+			"Renamed acme-inc to acme-inc-renamed.",
+		},
+	})
+}
+
 // Run the tests with empiretest.Run, which will lock access to the database
 // since it can't be shared by parallel tests.
 func TestMain(m *testing.M) {
