@@ -88,14 +88,12 @@ func (s *store) AppsAll() ([]*App, error) {
 
 func (s *store) AppsFind(scope func(*gorm.DB) *gorm.DB) (*App, error) {
 	var app App
-	if err := s.db.Scopes(scope).First(&app).Error; err != nil {
-		if err == gorm.RecordNotFound {
-			return nil, nil
-		}
+	return &app, s.db.Scopes(scope).First(&app).Error
+}
 
-		return nil, err
-	}
-	return &app, nil
+func (s *store) AppsFindOrCreateByRepo(repo string) (*App, error) {
+	var app App
+	return &app, s.db.Scopes(AppRepo(repo)).FirstOrCreate(&app, App{Name: NewAppNameFromRepo(repo)}).Error
 }
 
 // AppID returns a scope to find an app by id.
@@ -146,33 +144,7 @@ func (s *appsService) AppsEnsureRepo(app *App, repo string) error {
 // AppsFindOrCreateByRepo first attempts to find an app by repo, falling back to
 // creating a new app.
 func (s *appsService) AppsFindOrCreateByRepo(repo string) (*App, error) {
-	a, err := s.store.AppsFind(AppRepo(repo))
-	if err != nil {
-		return a, err
-	}
-
-	// If the app wasn't found, create a new app linked to this repo.
-	if a != nil {
-		return a, nil
-	}
-
-	n := NewAppNameFromRepo(repo)
-
-	a, err = s.store.AppsFind(AppName(n))
-	if err != nil {
-		return a, err
-	}
-
-	if a != nil {
-		return a, s.AppsEnsureRepo(a, repo)
-	}
-
-	a = &App{
-		Name: n,
-		Repo: &repo,
-	}
-
-	return s.store.AppsCreate(a)
+	return s.store.AppsFindOrCreateByRepo(repo)
 }
 
 // AppsCreate inserts the app into the database.
