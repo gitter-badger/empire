@@ -63,33 +63,30 @@ func releasesScope(app *App) func(*gorm.DB) *gorm.DB {
 	}
 }
 
-func (s *store) ReleasesLast(app *App) (*Release, error) {
-	var release Release
-	if err := s.db.Scopes(releasesScope(app)).First(&release).Error; err != nil {
-		if err == gorm.RecordNotFound {
-			return nil, nil
-		}
+// ReleasesQuery is a query object that can be used when querying for a Release.
+type ReleasesQuery struct {
+	// If provided, filters releases to only those that are for this app.
+	App *App
 
-		return nil, err
-	}
-	return &release, nil
+	// If provided, filters the results to a specific version.
+	Version *int
 }
 
-func (s *store) ReleasesFindByApp(app *App) ([]*Release, error) {
-	var releases []*Release
-	return releases, s.db.Scopes(releasesScope(app)).Find(&releases).Error
-}
+// ReleasesFind finds a single release. Results will be filtered based on the
+// provided query object.
+func (s *store) ReleasesFirst(q ReleasesQuery) (*Release, error) {
+	db := s.db
 
-func (s *store) ReleasesFindByAppAndVersion(app *App, v int) (*Release, error) {
-	var release Release
-	if err := s.db.Scopes(releasesScope(app)).Where("version = ?", v).First(&release).Error; err != nil {
-		if err == gorm.RecordNotFound {
-			return nil, nil
-		}
-
-		return nil, err
+	if q.App != nil {
+		db = db.Where("app_id = ?", app.ID)
 	}
-	return &release, nil
+
+	if q.Version != nil {
+		db = db.Where("version = ?", v)
+	}
+
+	var release Release
+	return &release, db.First(&release).Error
 }
 
 func (s *store) ReleasesCreate(r *Release) (*Release, error) {
@@ -125,7 +122,7 @@ func (s *releasesService) ReleasesCreate(ctx context.Context, r *Release) (*Rele
 
 func (s *releasesService) createFormation(release *Release) error {
 	// Get the old release, so we can copy the Formation.
-	last, err := s.store.ReleasesLast(release.App)
+	last, err := s.store.ReleasesFind(release.App)
 	if err != nil {
 		return err
 	}
