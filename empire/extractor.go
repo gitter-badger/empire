@@ -314,5 +314,14 @@ func newDockerClient(socket, certPath string) (*docker.Client, error) {
 		return docker.NewTLSClient(socket, cert, key, ca)
 	}
 
-	return docker.NewClient(socket)
+	c, err := docker.NewClient(socket)
+	if err != nil {
+		return c, err
+	}
+
+	if err := c.Ping(); err != nil {
+		return c, fmt.Errorf("Unable to ping the docker daemon: %v", err)
+	}
+
+	return c, nil
 }
